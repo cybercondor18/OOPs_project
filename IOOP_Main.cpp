@@ -29,7 +29,7 @@ public:
 
     }
     void place_bid(){
-
+        
     }
     void create_auction(){
         
@@ -45,6 +45,7 @@ class buyer : public user
 {
 public:
     string list;
+
 };
 class auction{
     string item_name;
@@ -64,4 +65,48 @@ class auction{
 
     }
     friend void user::create_auction();
+};
+class bid{
+    string bidder_name;
+    float bid_amount;
+    tim t;
+    void place_bid(){
+
+    }
+    void validate_bid(){
+
+    }
+};
+class tim{
+    public:
+    int hours,min,sec;
+    friend class bid;
+};
+class item{
+    string i_name,description;
+    float start_price;
+    void get_details(item &t){
+        cout<<"Item name : "<<i_name<<endl;
+        cout<<"Starting price : "<<start_price<<endl; 
+        cout<<"Description : "<<description<<endl;
+    }
+    void update_details(item &t){
+        int ch;
+        cout<<"1.Update item name\n2.Update description\n3.Update starting price\n\n";
+        cout<<"Choose what to update : ";
+        cin>>ch;
+        switch(ch){
+            case 1:
+                cout<<"Enter new item name : ";
+                cin>>i_name;
+            case 2:
+                cout<<"Enter new starting price : ";
+                cin>>start_price;
+            case 3:
+                cout<<"Enter new description : ";
+                cin>>description;
+            default :
+                cout<<"Choose valid option\n\n";
+        }
+    }
 };
