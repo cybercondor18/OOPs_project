@@ -25,10 +25,18 @@ public:
     {
         userID = userCount++;
     }
-    void show_details()
-    {
-        cout << "Name : " << name << endl;
-        cout << "Email : " << email << endl;
+   void log(){
+
+    }
+    void place_bid(){
+
+    }
+    void create_auction(){
+        
+    }
+    void show_details(){
+        cout<<"Name : "<<name<<endl;
+        cout<<"Email : "<<email<<endl;
     }
 };
 
@@ -37,4 +45,23 @@ class buyer : public user
 {
 public:
     string list;
+};
+class auction{
+    string item_name;
+    float start_price, curr_bid;
+    auction(){
+        cout<<"Enter item name : ";
+        cin>>item_name;
+        cout<<"Enter start price :";
+        cin>>start_price;
+        cout<<"Enter current bid price : ";
+        cin>>curr_bid;
+    }
+    void start_auc(){
+
+    }
+    void end_auc(){
+
+    }
+    friend void user::create_auction();
 };
