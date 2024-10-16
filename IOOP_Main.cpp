@@ -18,3 +18,6 @@ class user{
         cout<<"Email : "<<email<<endl;
     }
 };
+class buyer:public user{
+    
+};
