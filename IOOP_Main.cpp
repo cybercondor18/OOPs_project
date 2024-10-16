@@ -19,5 +19,6 @@ class user{
     }
 };
 class buyer:public user{
-    
+    public:
+        string list;
 };
