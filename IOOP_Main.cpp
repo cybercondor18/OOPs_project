@@ -25,18 +25,18 @@ public:
     {
         userID = userCount++;
     }
-   void log(){
+    void log()
+    {
+    }
+    virtual void place_bid() = 0;
 
+    void create_auction()
+    {
     }
-    void place_bid(){
-        
-    }
-    void create_auction(){
-        
-    }
-    void show_details(){
-        cout<<"Name : "<<name<<endl;
-        cout<<"Email : "<<email<<endl;
+    void show_details()
+    {
+        cout << "Name : " << name << endl;
+        cout << "Email : " << email << endl;
     }
 };
 
@@ -46,67 +46,81 @@ class buyer : public user
 public:
     string list;
 
-};
-class auction{
-    string item_name;
-    float start_price, curr_bid;
-    auction(){
-        cout<<"Enter item name : ";
-        cin>>item_name;
-        cout<<"Enter start price :";
-        cin>>start_price;
-        cout<<"Enter current bid price : ";
-        cin>>curr_bid;
-    }
-    void start_auc(){
+    buyer(string name, string email, string password) : user(name, email, password, "Buyer"){}
 
-    }
-    void end_auc(){
-
-    }
-    friend void user::create_auction();
-};
-class bid{
-    string bidder_name;
-    float bid_amount;
-    tim t;
     void place_bid(){
 
     }
-    void validate_bid(){
 
+};
+class auction
+{
+    string item_name;
+    float start_price, curr_bid;
+    auction()
+    {
+        cout << "Enter item name : ";
+        cin >> item_name;
+        cout << "Enter start price :";
+        cin >> start_price;
+        cout << "Enter current bid price : ";
+        cin >> curr_bid;
+    }
+    void start_auc()
+    {
+    }
+    void end_auc()
+    {
+    }
+    friend void user::create_auction();
+};
+class bid
+{
+    string bidder_name;
+    float bid_amount;
+    tim t;
+    void place_bid()
+    {
+    }
+    void validate_bid()
+    {
     }
 };
-class tim{
-    public:
-    int hours,min,sec;
+class tim
+{
+public:
+    int hours, min, sec;
     friend class bid;
 };
-class item{
-    string i_name,description;
+class item
+{
+    string i_name, description;
     float start_price;
-    void get_details(item &t){
-        cout<<"Item name : "<<i_name<<endl;
-        cout<<"Starting price : "<<start_price<<endl; 
-        cout<<"Description : "<<description<<endl;
+    void get_details(item &t)
+    {
+        cout << "Item name : " << i_name << endl;
+        cout << "Starting price : " << start_price << endl;
+        cout << "Description : " << description << endl;
     }
-    void update_details(item &t){
+    void update_details(item &t)
+    {
         int ch;
-        cout<<"1.Update item name\n2.Update description\n3.Update starting price\n\n";
-        cout<<"Choose what to update : ";
-        cin>>ch;
-        switch(ch){
-            case 1:
-                cout<<"Enter new item name : ";
-                cin>>i_name;
-            case 2:
-                cout<<"Enter new starting price : ";
-                cin>>start_price;
-            case 3:
-                cout<<"Enter new description : ";
-                cin>>description;
-            default :
-                cout<<"Choose valid option\n\n";
+        cout << "1.Update item name\n2.Update description\n3.Update starting price\n\n";
+        cout << "Choose what to update : ";
+        cin >> ch;
+        switch (ch)
+        {
+        case 1:
+            cout << "Enter new item name : ";
+            cin >> i_name;
+        case 2:
+            cout << "Enter new starting price : ";
+            cin >> start_price;
+        case 3:
+            cout << "Enter new description : ";
+            cin >> description;
+        default:
+            cout << "Choose valid option\n\n";
         }
     }
 };
