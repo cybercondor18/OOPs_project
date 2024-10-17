@@ -1,8 +1,24 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <ctime>
 #include <string>
+#include <map>
+#include <stdexcept>
 
 using namespace std;
+
+// I've Added a bit of exception handling too...
+class InvalidBidException : public exception
+{
+public:
+    const char *what() const noexcept override
+    {
+        return "Invalid bid amount!";
+    }
+};
+
+// create some more here ...
 
 class user
 {
@@ -46,12 +62,14 @@ class buyer : public user
 public:
     string list;
 
-    buyer(string name, string email, string password) : user(name, email, password, "Buyer"){}
+    buyer(string name, string email, string password) : user(name, email, password, "Buyer") {}
 
-    void place_bid(){
-
+    void place_bid(int auctionID, double bidAmount)
+    {
+        if (bidAmount <= 0)
+            throw InvalidBidException();
+        cout << "Placed bid of " << bidAmount << " on auction " << auctionID << endl;
     }
-
 };
 class auction
 {
