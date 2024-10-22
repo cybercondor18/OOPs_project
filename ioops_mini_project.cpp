@@ -3,6 +3,7 @@
 #include <vector>
 #include <ctime>
 #include <string>
+#include <cstring>
 #include <map>
 #include <stdexcept>
 #include<conio.h>
@@ -75,10 +76,8 @@ class experience{
         cin.ignore(); 
         getline(cin,job_title);
         cout<<"Enter company name : ";
-        cin.ignore(); 
         getline(cin,company_name);
         cout<<"Enter job duration : ";
-        cin.ignore(); 
         getline(cin,duration);
         return;
     }
@@ -92,7 +91,6 @@ class education{
         cin.ignore(); 
         getline(cin,name_of_grade);
         cout<<"Enter institute or place from where you complete qualification : ";
-        cin.ignore(); 
         getline(cin,institute);
         cout<<"Enter year of completion : ";
         cin>>year_dur;
@@ -101,6 +99,7 @@ class education{
 enum status{hired,rejected,pending,shortlisted};
 class application{
     public:
+    static long long application_id;
     string appl_resume,cover_letter;
     long long appl_id;
     status appl_st;
@@ -139,10 +138,10 @@ class application{
     }
     void saveApplication();
 };
-
-long long jobid=9000000;
+long long application:: application_id=1000000;
 class job{
     public:
+    static long long jobid;
     string job_title,job_type;
     long long job_id;
     employer *job_emp;
@@ -151,6 +150,14 @@ class job{
     float salary;
     string job_location;
     vector <application*> appl_list;
+    job(){
+        job_title=" ";
+        job_type=" ";
+        job_id=0;
+        job_descr=" ";
+        salary=0.0;
+        job_location=" ";
+    }
     void view_details();
     void view_compt_details();
     void create_job(string jb_title, string description, vector<string> req, float sal, string location, string jb_type);
@@ -160,7 +167,7 @@ class job{
     }
     void saveToFile();
 };
-long long application_id=1000000;
+long long job:: jobid=9000000;
 class jobseeker:public user{
     public:
     string resume;
@@ -187,10 +194,15 @@ class jobseeker:public user{
         return;
     }
     void saveProfile() {
-        ofstream outFile;
+        fstream outFile;
         outFile.open("jobseekers.txt", ios::app); 
         if (outFile.is_open()) {
-            outFile << name << "," << email << "," << resume << "\n";
+            int currentPos = outFile.tellg();
+            outFile << name << ",";
+            outFile.seekp(currentPos+14,ios::beg);
+            outFile << email << ",";
+            outFile.seekp(currentPos+26,ios::beg);
+            outFile << resume << "\n";
             outFile.close();
         } else {
             cerr << "Error opening file.\n";
@@ -212,12 +224,13 @@ class company_profile{
         cin.ignore(); 
         getline(cin,comp_description);
         cout<<"Enter company location : ";
-        cin.ignore(); 
         getline(cin,comp_location);
+        return;
     }
     void view_comp_prof(){
         cout<<"\nCompany description : "<<comp_description<<endl;
         cout<<"Company location : "<<comp_location<<endl;
+        return;
     }
 };
 class employer:public user{
@@ -261,15 +274,15 @@ class admin{
         admin_list.push_back(this);
     }
     int adm_login(){
-        long long adm_id;
+        string adm_uname;
         string pwd;
-        d : cout<<"\nEnter admin id : ";
-        cin>>adm_id;
+        d : cout<<"\nEnter admin username : ";
+        cin>>adm_uname;
         cout<<"Enter password : ";
         cin>>pwd;
         int f1=0,f2=0;
         for(int i=0;i<admin_list.size();i++){
-            if(adm_id==admin_list[i]->admin_id){
+            if(adm_uname==admin_list[i]->name){
                 f1=1;
                 if(pwd==admin_list[i]->pass){
                     cout<<"\n****** Login Successful ******\n\n";
@@ -283,7 +296,7 @@ class admin{
             }
         }
         if(f1==0){
-            cout<<"\nAdmin id is wrong\n";
+            cout<<"\nAdmin username is wrong\n";
         }
         else if(f1==1 && f2==0){
             cout<<"\nPassword is wrong\n";
@@ -318,6 +331,7 @@ void job::saveToFile() {
     ofstream outFile("jobs.txt", ios::app); 
     if (outFile.is_open()) {
         outFile << job_title << "," << job_descr << "," << job_emp->company_name << "," << salary << "\n";
+        cout<<"\n\n*** Job registered successfully ***\n";
         outFile.close();
     } else {
         cerr << "Error opening file.\n";
@@ -337,7 +351,7 @@ void employer::saveEmployerProfile() {
     if (outFile.is_open()) {
         outFile << company_name << "," << email << "," << comp_prof->comp_description << "\n";
         outFile.close();
-        cout << "Employer profile saved successfully.\n";
+        cout << "\n\n*** Employer profile saved successfully ***\n";
     } else {
         cerr << "Error opening file to save employer details.\n";
     }
@@ -364,16 +378,50 @@ void job::view_compt_details(){
     cout<<"\nJob location : "<<job_location<<endl;
     cout<<"No. of applications recieved : "<<this->appl_list.size()<<endl;
 }
+// void job::create_job(string jb_title, string description, vector<string> req, float sal, string location, string jb_type){
+//     cout<<"\nCreated post_job\n";
+//     // strcpy(job_title,jb_title);
+//     job_title=jb_title;
+//     cout<<"\njob title\n";
+//     this->job_descr=description;
+//     cout<<"\njob descr\n";
+//     for(int i=0;i<req.size();i++){
+//         this->requirements.push_back(req[i]);
+//         cout<<"\n1st req entered"<<endl;
+//     }
+//     // this->requirements=req;
+//     this->job_id=++jobid;
+//     this->job_type=jb_type;
+//     this->salary=sal;
+//     this->job_location=location;
+//     cout<<"\nJob created \n";
+//     return;
+// }
 void job::create_job(string jb_title, string description, vector<string> req, float sal, string location, string jb_type){
-    this->job_title=jb_title;
-    this->job_descr=description;
-    this->requirements=req;
-    this->job_id=++jobid;
-    this->job_type=jb_type;
-    this->salary=sal;
-    this->job_location=location;
-    this->saveToFile();
-    return;
+    cout << "\nCreating job...\n";
+    
+    // Check input values
+    cout << "Job Title: " << jb_title << "\nDescription: " << description << endl;
+    cout << "Salary: " << sal << " Location: " << location << endl;
+    cout << "Requirements size: " << req.size() << endl;
+
+    // Assign input values to class members
+    job_title = jb_title;
+    job_descr = description;
+    job_location = location;
+    job_type = jb_type;
+    salary = sal;
+    
+    // Add requirements to job object
+    for (int i = 0; i < req.size(); i++) {
+        requirements.push_back(req[i]);
+        cout << "Requirement " << i + 1 << ": " << req[i] << " added" << endl;
+    }
+
+    // Assign a unique job ID
+    job_id = ++jobid;
+    
+    cout << "\nJob created successfully. Job ID: " << job_id << endl;
 }
 void job::update_job_details(){
     int ch,c,i,choice,r;
@@ -591,7 +639,8 @@ void jobseeker::apply_for_job(job *jb, string job_resume,string cover_ltr){
     application appl;
     appl.appl_resume=job_resume;
     appl.cover_letter=cover_ltr;
-    appl.appl_id=++application_id;
+    appl.application_id++;
+    appl.appl_id=appl.application_id;
     appl.appl_st=pending;
     appl.job_ref=jb;
     appl.applicant=this;
@@ -624,7 +673,6 @@ void jobseeker::update_skills(){
                 if(this->skills[i]==skl){
                     f=1;
                     cout<<"\nEnter updated skill : ";
-                    cin.ignore();
                     getline(cin,up_skl);
                     this->skills.push_back(up_skl);
                     break;
@@ -817,14 +865,19 @@ void employer::comp_details(){
     comp_prof->view_comp_prof();
 }
 void employer::post_job(string jb_title, string description, vector<string> req, float sal, string location, string jb_type){
-    job j;
-    j.create_job(jb_title,description,req,sal,location,jb_type);
-    j.job_emp->company_name=this->company_name;
-    j.job_emp->comp_prof->comp_description=this->comp_prof->comp_description;
-    j.job_emp->comp_prof->comp_location=this->comp_prof->comp_location;
-    this->posted_jobs.push_back(&j);
-    j.job_emp->posted_jobs=this->posted_jobs;
-    job_list.push_back(&j);
+    job *j;
+    cout<<"\nEntererd post_job\n";
+    j->create_job(jb_title,description,req,sal,location,jb_type);
+    j->job_emp->company_name=this->company_name;
+    j->job_emp->comp_prof->comp_description=this->comp_prof->comp_description;
+    j->job_emp->comp_prof->comp_location=this->comp_prof->comp_location;
+    cout<<"\nPushed1 \n";
+    this->posted_jobs.push_back(j);
+    cout<<"\nJobless2\n";
+    job_list.push_back(j);
+    cout<<"\nPushed2 \n";
+    j->saveToFile();
+    return;
 }
 void employer::view_posted_jobs(){
     for(int i=0;i<this->posted_jobs.size();i++){
@@ -1061,6 +1114,8 @@ int main()
                                         cout<<"Enter cover letter : ";
                                         cin>>cvr_ltr;
                                         jbs_ptr->apply_for_job(j,rsm,cvr_ltr);
+                                        getch();
+                                        system("cls");
                                         break;
                                     case 2:
                                         cout<<"Enter new resume : ";
@@ -1069,21 +1124,31 @@ int main()
                                         break;
                                     case 3:
                                         jbs_ptr->view_applied_jobs();
+                                        getch();
+                                        system("cls");
                                         break;
                                     case 4:
                                         jbs_ptr->update_skills();
+                                        getch();
+                                        system("cls");
                                         break;
                                     case 5:
                                         jbs_ptr->search_jobs();
+                                        getch();
+                                        system("cls");
                                         break;
                                     case 6:
                                         jbs_ptr->update_experiences();
+                                        getch();
+                                        system("cls");
                                         break;
                                     case 7:
                                         jbs_ptr->track_application_status();
                                         break;
                                     case 8:
                                         jbs_ptr->view_profile();
+                                        getch();
+                                        system("cls");
                                         break;
                                     case 9:
                                         jbs_ptr->logout();
@@ -1115,39 +1180,49 @@ int main()
                                 job *j;
                                 switch(m8){
                                     case 1:
-                                        emp.comp_details();
+                                        emp_ptr->comp_details();
+                                        getch();
+                                        system("cls");
                                         break;
                                     case 2:
                                         cout<<"Enter job title : ";
                                         cin.ignore();
                                         getline(cin,jb_title);
                                         cout<<"Enter job type : ";
-                                        cin.ignore();
                                         getline(cin,jb_type);
                                         cout<<"Enter job location : ";
-                                        cin.ignore();
                                         getline(cin,lctn);
                                         cout<<"Enter job description : ";
-                                        cin.ignore();
                                         getline(cin,descr);
                                         cout<<"Enter job salary : ";
                                         cin>>s;
                                         cout<<"Enter job requirements : \n";
-                                        r : cout<<"1. Press 1 to add  a requirement\n";
-                                        cout<<"2. Press -1 to exit\n";
-                                        cout<<"Choice : ";
+                                        r : cout<<"\nEnter requirement : ";
+                                        cin>>req;
+                                        r.push_back(req);
+                                        skill : cout<<"\n1.Want to add another requirement\t2.Done\n\n";
+                                        cout<<"Choose an option : ";
                                         cin>>c;
-                                        while(c!=-1){
-                                            cout<<"Enter requirement : ";
-                                            cin>>req;
-                                            r.push_back(req);
-                                            goto r;
+                                        switch(c){
+                                            case 1:
+                                                goto r;
+                                                break;
+                                            case 2:
+                                                break;
+                                            default:
+                                                cout<<"\nEnter valid option";
+                                                goto skill;
                                         }
-                                        emp.post_job(jb_title,descr,r,s,lctn,jb_type);
+                                        // emp.post_job(jb_title,descr,r,s,lctn,jb_type);
                                         emp_ptr->post_job(jb_title,descr,r,s,lctn,jb_type);
+                                        cout<<"\n\n***** Job posted successfully *****\n\n";
+                                        getch();
+                                        system("cls");
                                         break;
                                     case 3:
                                         emp_ptr->view_posted_jobs();
+                                        getch();
+                                        system("cls");
                                         break;
                                     case 4:
                                         cout<<"\nEnter candidate application id : ";
@@ -1166,6 +1241,8 @@ int main()
                                         break;
                                     case 7:
                                         emp_ptr->update_job();
+                                        getch();
+                                        system("cls");
                                         break;
                                     case 8:
                                         emp_ptr->remove_job();
@@ -1215,12 +1292,16 @@ int main()
                         switch(m6){
                             case 1:
                                 adm.view_users();
+                                getch();
+                                system("cls");
                                 break;
                             case 2:
                                 adm.remove_user();
                                 break;
                             case 3:
                                 adm.view_all_jobs();
+                                getch();
+                                system("cls");
                                 break;
                             case 4:
                                 adm.remove_job();
