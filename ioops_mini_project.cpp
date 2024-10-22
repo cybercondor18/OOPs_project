@@ -401,7 +401,7 @@ void job::create_job(string jb_title, string description, vector<string> req, fl
     cout << "\nCreating job...\n";
     
     // Check input values
-    cout << "Job Title: " << jb_title << "\nDescription: " << description << endl;
+    cout << "\nJob Title: " << jb_title << "\nDescription: " << description << endl;
     cout << "Salary: " << sal << " Location: " << location << endl;
     cout << "Requirements size: " << req.size() << endl;
 
@@ -673,6 +673,7 @@ void jobseeker::update_skills(){
                 if(this->skills[i]==skl){
                     f=1;
                     cout<<"\nEnter updated skill : ";
+                    cin.ignore();
                     getline(cin,up_skl);
                     this->skills.push_back(up_skl);
                     break;
@@ -864,19 +865,45 @@ void employer::comp_details(){
     cout<<"\nCompany name : "<<company_name<<endl;
     comp_prof->view_comp_prof();
 }
-void employer::post_job(string jb_title, string description, vector<string> req, float sal, string location, string jb_type){
-    job *j;
-    cout<<"\nEntererd post_job\n";
-    j->create_job(jb_title,description,req,sal,location,jb_type);
-    j->job_emp->company_name=this->company_name;
-    j->job_emp->comp_prof->comp_description=this->comp_prof->comp_description;
-    j->job_emp->comp_prof->comp_location=this->comp_prof->comp_location;
-    cout<<"\nPushed1 \n";
-    this->posted_jobs.push_back(j);
-    cout<<"\nJobless2\n";
-    job_list.push_back(j);
-    cout<<"\nPushed2 \n";
-    j->saveToFile();
+// void employer::post_job(string jb_title, string description, vector<string> req, float sal, string location, string jb_type){
+//     job *j;
+//     cout<<"\nEntererd post_job\n";
+//     j->create_job(jb_title,description,req,sal,location,jb_type);
+//     j->job_emp->company_name=this->company_name;
+//     j->job_emp->comp_prof->comp_description=this->comp_prof->comp_description;
+//     j->job_emp->comp_prof->comp_location=this->comp_prof->comp_location;
+//     cout<<"\nPushed1 \n";
+//     this->posted_jobs.push_back(j);
+//     cout<<"\nJobless2\n";
+//     job_list.push_back(j);
+//     cout<<"\nPushed2 \n";
+//     j->saveToFile();
+//     return;
+// }
+void employer::post_job(string jb_title, string description, vector<string> req, float sal, string location, string jb_type) {
+    // Initialize job object using new
+    job *j = new job();  // Allocate memory for the job object
+
+    cout << "\nEntered post_job\n";
+    j->create_job(jb_title, description, req, sal, location, jb_type);
+
+    // Assuming job_emp is a pointer, allocate memory for it if needed
+    j->job_emp = new employer();  // Make sure job_emp points to a valid object
+    j->job_emp->comp_prof = new company_profile();
+    // Copy the employer details to the job's employer reference
+    j->job_emp->company_name = this->company_name;
+    cout<<"\nCompany name has been assigned\n";
+    j->job_emp->comp_prof->comp_description = this->comp_prof->comp_description;
+    j->job_emp->comp_prof->comp_location = this->comp_prof->comp_location;
+
+    cout << "\nPushed1 \n";
+    this->posted_jobs.push_back(j);  // Add to posted jobs of employer
+    cout << "\nJobless2\n";
+    job_list.push_back(j);  // Add to global job list
+    cout << "\nPushed2 \n";
+
+    j->saveToFile();  // Save job details to file
+
     return;
 }
 void employer::view_posted_jobs(){
@@ -1064,7 +1091,7 @@ int main()
                     switch(m4){
                         case 1:
                             if(jbs.jbs_login()){
-                                jobseeker *jbs_ptr;
+                                jobseeker *jbs_ptr = new jobseeker();
                                 for(int i=0;i<jobseek_list.size();i++){
                                     if(jbs.name==jobseek_list[i]->name){
                                         jbs_ptr=jobseek_list[i];
@@ -1163,7 +1190,8 @@ int main()
                             break;
                         case 2:
                             if(emp.emp_login()){
-                                employer *emp_ptr;
+                                employer *emp_ptr = new employer;
+                                emp_ptr->comp_prof = new company_profile();
                                 for(int i=0;i<emp_list.size();i++){
                                     if(emp.name==emp_list[i]->name){
                                         emp_ptr=emp_list[i];
