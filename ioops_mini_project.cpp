@@ -115,12 +115,12 @@ class education{
 enum status{hired,rejected,pending,shortlisted};
 class application{
     public:
-    static long long application_id;
+    // static long long application_id;
     string appl_resume,cover_letter;
     long long appl_id;
     status appl_st;
-    job job_ref;
-    jobseeker applicant;
+    job *job_ref;
+    jobseeker *applicant;
     application();
     void view_appl_details();
     void update_appl_status(){
@@ -155,13 +155,13 @@ class application{
     }
     void saveApplication();
 };
-long long application:: application_id=1000000;
+long long application_id=1000000;
 class job{
     public:
     static long long jobid;
     string job_title,job_type;
     long long job_id;
-    employer job_emp;
+    employer *job_emp;
     string job_descr;
     vector <string> requirements;
     float salary;
@@ -175,7 +175,7 @@ class job{
     void close_job(){
 
     }
-    void saveToFile();
+    void saveToCSV_jobs();
 };
 long long job:: jobid=9000000;
 class jobseeker:public user{
@@ -186,11 +186,11 @@ class jobseeker:public user{
     vector <string> skills;
     vector <job> applied_jobs;
     vector <application> app_list;
-    job_preferences job_prefr;
+    job_preferences *job_prefr;
     jobseeker();
     void create_new_jobseeker();
     int jbs_login();
-    void view_profile() override;
+    void view_profile_jbs();
     void apply_for_job(job &jb, string job_resume,string cover_ltr=NULL);
     void update_resume(string new_resume){
         this->resume=new_resume;
@@ -219,6 +219,7 @@ class jobseeker:public user{
             cerr << "Error opening file.\n";
         }
     }
+    void saveToCSV_jobseekers();
 };
 class job_preferences{
     public:
@@ -239,7 +240,6 @@ class company_profile{
     }
     void create_comp_prof(){
         cout<<"\nEnter comp_description : ";
-        cin.ignore(); 
         getline(cin,comp_description);
         cout<<"Enter company location : ";
         getline(cin,comp_location);
@@ -254,27 +254,23 @@ class company_profile{
 class employer:public user{
     public:
     string company_name;
-    company_profile comp_prof;
+    company_profile *comp_prof;
     vector <job> posted_jobs;
     vector <application> applications_received;
     employer();
     void create_new_employer();
     int emp_login();
-    void view_profile() override{
-        user::view_profile();
-        cout<<"\nCompany name : "<<company_name<<endl;
-    }
+    void view_profile_emp();
     void comp_details();
     void post_job(string jb_title, string description, vector<string> req, float sal, string location, string jb_type);
     void view_posted_jobs();
-    void review_applications(long long appl_id){
-
-    }
+    void review_applications(long long appl_id);
     void select_candidate(long long application_id);
     void reject_candidate(long long application_id);
     void update_job();
     void remove_job();
     void saveEmployerProfile();
+    void saveToCSV_employers();
 };
 long long admid=7000000;
 class admin{
@@ -297,6 +293,7 @@ class admin{
         cin>>this->pass;
         this->admin_id=++admid;
         admin_list.push_back(*this);
+        cout<<"\n\ndmin Registered Successfully\n\n";
     }
     int adm_login(){
         string adm_uname;
@@ -351,53 +348,76 @@ application::application(){
     cover_letter=" ";
     appl_id=0;
     appl_st=pending;
-    job_ref;
-    applicant; 
-    // job_ref = new job();
-    // applicant = new jobseeker();
+    job_ref = new job();
+    applicant = new jobseeker();
 }
 job::job(){
     job_title=" ";
     job_type=" ";
     job_id=0;
-    job_emp;
-    // job_emp = new employer();
+    job_emp = new employer();
     job_descr=" ";
     salary=0.0;
     job_location=" ";
+    // appl_list = new application()
 }
 jobseeker::jobseeker(){
     name=" ";
     email=" ";
     password=" ";
     resume=" ";
-    job_prefr;
-    // job_prefr=new job_preferences();
+    job_prefr=new job_preferences();
 }
 employer::employer(){
-    name=" ";
-    email=" ";
-    password=" ";
-    company_name=" ";
-    comp_prof;
-    // comp_prof=new company_profile();
-}
+        name=" ";
+        email=" ";
+        password=" ";
+        company_name=" ";
+        comp_prof=new company_profile();
+    }
 void application::view_appl_details(){
     cout<<"\nApplication ID : "<<this->appl_id<<endl;
     cout<<"Application status : "<<this->appl_st<<endl;
     this->job_ref->view_details();
     this->applicant->view_profile();
 }
-void job::saveToFile() {
-    ofstream outFile("jobs.txt", ios::app); 
-    if (outFile.is_open()) {
-        outFile << job_title << "," << job_descr << "," << job_emp->company_name << "," << salary << "\n";
-        cout<<"\n\n*** Job registered successfully ***\n";
-        outFile.close();
-    } else {
-        cerr << "Error opening file.\n";
+// void job::saveToFile() {
+//     ofstream outFile("jobs.txt", ios::app); 
+//     if (outFile.is_open()) {
+//         outFile << job_title << "," << job_descr << "," << job_emp->company_name << "," << salary << "\n";
+//         cout<<"\n\n*** Job registered successfully ***\n";
+//         outFile.close();
+//     } else {
+//         cerr << "Error opening file.\n";
+//     }
+// }
+void job:: saveToCSV_jobs() {
+    ofstream file("jobs.csv", ios::app);
+    if (!file.is_open()) {
+        throw runtime_error("Unable to open students.csv");
     }
+    file << job_id << "," << job_title << "," << job_type << ","<< job_descr << ","<< salary << ","<< job_location << "," ;
+    file << endl;
+    file.close();
 }
+void jobseeker::saveToCSV_jobseekers() {
+    ofstream file("jobseekers.csv", ios::app);
+    if (!file.is_open()) {
+        throw runtime_error("Unable to open students.csv");
+    }
+    file << name << "," << email << "," ;
+    file << endl;
+    file.close();
+}
+void employer::saveToCSV_employers() {
+        ofstream file("employers.csv", ios::app);
+        if (!file.is_open()) {
+            throw runtime_error("Unable to open students.csv");
+        }
+        file << name << "," << company_name << "," << email << "," ;
+        file << endl;
+        file.close();
+    }
 void application::saveApplication() {
     ofstream outFile("applications.txt", ios::app);
     if (outFile.is_open()) {
@@ -410,7 +430,7 @@ void application::saveApplication() {
 void employer::saveEmployerProfile() {
     ofstream outFile("employers.txt", ios::app);
     if (outFile.is_open()) {
-        outFile << company_name << "," << email << "," << comp_prof.comp_description << "\n";
+        outFile << name << "," << company_name << "," << email << "," << comp_prof->comp_description << "\n";
         outFile.close();
         cout << "\n\n*** Employer profile saved successfully ***\n";
     } else {
@@ -430,7 +450,7 @@ void job::view_compt_details(){
     cout<<"Job type : "<<job_type<<endl;
     cout<<"Job salary : "<<salary<<endl;
     cout<<"Job employer details : \n"<<endl;
-    job_emp->comp_details();
+    // job_emp->view_profile_emp();
     cout<<"\nJob description : "<<job_descr<<endl;
     cout<<"Job requirements : \n";
     for(int i=0;i<this->requirements.size();i++){
@@ -487,7 +507,8 @@ void job::create_job(string jb_title, string description, vector<string> req, fl
 void job::update_job_details(){
     int ch,c,i,choice,r;
     string new_jb,new_comp,new_req,new_descr,new_location;
-    a : cout<<"\n1.Job Title\t2.Job description\t3.Job requirements\t4.Job salary\n\t5.Job location\t6.Job type\n\n";
+    a : cout<<"\n1.Job Title\n2.Job description\n3.Job requirements\n4.Job salary\n\n5.Job location\n6.Job type\n\n";
+    cout<<"\nChoose what to update : ";
     cin>>c;
     switch(c){
         case 1:
@@ -646,9 +667,11 @@ void jobseeker::create_new_jobseeker(){
     cout<<"\nEnter job preferences => \n";
     job_preferences jbp;
     jbp.create_job_pref();
-    job_prefr=jbp;
+    job_prefr=&jbp;
+    // int s = jobseek_list.size();
+    // jobseek_list[s] = new jobseeker();
     jobseek_list.push_back(*this);
-    this->saveProfile();
+    this->saveToCSV_jobseekers();
     return;
 }
 int jobseeker::jbs_login(){
@@ -694,8 +717,9 @@ int jobseeker::jbs_login(){
             goto e;
     }
 }
-void jobseeker::view_profile(){
-    user::view_profile();
+void jobseeker::view_profile_jbs(){
+    cout<<"\n Name : "<<name;
+    cout<<"\nEmail : "<<email;
     cout<<"\nExperiences =>\n";
     for(int i=0;i<this->exp_list.size();i++){
         cout<<"\n"<<i+1<<". \n";
@@ -714,25 +738,34 @@ void jobseeker::view_profile(){
     for(int i=0;i<this->skills.size();i++){
         cout<<"\n"<<i+1<<". "<<this->skills[i];
     }
-    cout<<"\n\n";
     return;
 }
 void jobseeker::apply_for_job(job &jb, string job_resume,string cover_ltr){
     application appl;
     appl.appl_resume=job_resume;
     appl.cover_letter=cover_ltr;
-    appl.application_id++;
-    appl.appl_id=appl.application_id;
+    application_id++;
+    appl.appl_id=application_id;
     appl.appl_st=pending;
     appl.job_ref=&jb;
+    cout<<"\nPushed 1\n";
     appl.applicant=this;
+    cout<<"\nPushed 2\n";
     jb.appl_list.push_back(appl);
-    jb.job_emp->applications_received.push_back(appl);
+    cout<<"\nPushed 3\n";
+    // jb.job_emp->applications_received.push_back(appl);
+    // cout<<"\nPushed 4\n";
     this->applied_jobs.push_back(jb);
+    cout<<"\nPushed 5\n";
     this->app_list.push_back(appl);
+    cout<<"\nPushed 6\n";
     appl.saveApplication();
 }
 void jobseeker::view_applied_jobs(){
+    if(applied_jobs.size()==0){
+        cout<<"\nYou have not applied for any job\n\n";
+        return;
+    }
     for(int i=0;i<this->applied_jobs.size();i++){
         cout<<"Job "<<i+1<<" : \n";
         this->applied_jobs[i].view_details();
@@ -891,7 +924,20 @@ void jobseeker::update_experiences(){
 void jobseeker::track_application_status(){
     for(int i=0;i<this->app_list.size();i++){
         cout<<"\n"<<i+1<<". Job title : "<<this->app_list[i].job_ref->job_title<<endl;
-        cout<<"Status : "<<this->app_list[i].appl_st<<endl;
+        switch(this->app_list[i].appl_st){
+            case 0:
+                cout<<"Status : "<<"hired"<<endl;
+                break;
+            case 1:
+                cout<<"Status : "<<"rejected"<<endl;
+                break; 
+            case 2:
+                cout<<"Status : "<<"pending"<<endl;
+                break;
+            case 3:
+                cout<<"Status : "<<"shortlisted"<<endl;
+                break;    
+        }
     }
 }
 void employer::create_new_employer(){
@@ -900,11 +946,9 @@ void employer::create_new_employer(){
     cin.ignore();
     getline(cin,company_name);
     cout<<"\nEnter company details => \n";
-    company_profile cmp;
-    cmp.create_comp_prof();
-    comp_prof=cmp;
+    this->comp_prof->create_comp_prof();
     emp_list.push_back(*this);
-    saveEmployerProfile();
+    saveToCSV_employers();
     return;
 }
 int employer::emp_login(){
@@ -953,55 +997,27 @@ int employer::emp_login(){
 void employer::comp_details(){
     user::view_profile();
     cout<<"\nCompany name : "<<company_name<<endl;
-    comp_prof.view_comp_prof();
+    comp_prof->view_comp_prof();
 }
-// void employer::post_job(string jb_title, string description, vector<string> req, float sal, string location, string jb_type){
-//     job *j;
-//     cout<<"\nEntererd post_job\n";
-//     j->create_job(jb_title,description,req,sal,location,jb_type);
-//     j->job_emp->company_name=this->company_name;
-//     j->job_emp->comp_prof->comp_description=this->comp_prof->comp_description;
-//     j->job_emp->comp_prof->comp_location=this->comp_prof->comp_location;
-//     cout<<"\nPushed1 \n";
-//     this->posted_jobs.push_back(j);
-//     cout<<"\nJobless2\n";
-//     job_list.push_back(j);
-//     cout<<"\nPushed2 \n";
-//     j->saveToFile();
-//     return;
-// }
+void employer:: view_profile_emp(){
+    cout<<"\n Name : "<<name;
+    cout<<"\nEmail : "<<email;
+    cout<<"\nCompany name : "<<company_name;
+    cout<<"\nCompany description : "<<comp_prof->comp_description;
+    cout<<"\nCompany location : "<<comp_prof->comp_location<<endl;
+}
 void employer::post_job(string jb_title, string description, vector<string> req, float sal, string location, string jb_type) {
-    job j;  // Allocate memory for the job object
-
+    job j;  
     cout << "\nEntered post_job\n";
     j.create_job(jb_title, description, req, sal, location, jb_type);
-
-    // Allocate memory for job_emp and its company profile
-    // j->job_emp = new employer();
-    // j->job_emp->comp_prof = new company_profile();
-
-    // Debug: Check if this->comp_prof is initialized and has valid values
-    cout << "Employer's company name: " << this->company_name << endl;
-    // if (this->comp_prof) {
-        
-    // } else {
-    //     cout << "Error: Employer's company profile is not initialized!" << endl;
-    // }
-    cout << "Company description: " << this->comp_prof.comp_description << endl;
-        cout << "Company location: " << this->comp_prof.comp_location << endl;
-
-        // Copy the employer details to the job's employer reference
-        j.job_emp->company_name = this->company_name;
-        j.job_emp->comp_prof->comp_description = this->comp_prof.comp_description;
-        j.job_emp->comp_prof->comp_location = this->comp_prof.comp_location;
-    cout << "\nPushed1 \n";
-    this->posted_jobs.push_back(j);  // Add to posted jobs of employer
-    cout << "\nJobless2\n";
-    job_list.push_back(j);  // Add to global job list
-    cout << "\nPushed2 \n";
-
-    j.saveToFile();  // Save job details to file
-
+    employer e;
+    e.company_name = this->company_name;
+    e.comp_prof->comp_description = this->comp_prof->comp_description;
+    e.comp_prof->comp_location = this->comp_prof->comp_location;
+    j.job_emp=&e;
+    this->posted_jobs.push_back(j);  
+    job_list.push_back(j);  
+    j.saveToCSV_jobs();  
     return;
 }
 void employer::view_posted_jobs(){
@@ -1013,6 +1029,28 @@ void employer::view_posted_jobs(){
         cout<<"Job location : "<<this->posted_jobs[i].job_location<<endl;
     }
     return;
+}
+void employer::review_applications(long long appl_id){
+    int f=0;
+    application *a = new application();
+    if(applications_received.size()==0){
+        cout<<"\n\n *** No applications received till now ***\n\n";
+        return;
+    }
+    for(int i=0;i<this->applications_received.size();i++){
+        if(appl_id==applications_received[i].appl_id){
+            a=&applications_received[i];
+            f=1;
+            break;
+        }
+    }
+    if(f==0){
+        cout<<"\nApplication not found\n\n";
+        return;
+    }
+    // cout<<"\n\nApplcation ID : "<<a->appl_id<<endl;
+    // cout<<"\n\nApplcation ID : "<<a->appl_id<<endl;
+    a->view_appl_details();
 }
 void employer::select_candidate(long long application_id){
     int f=0;
@@ -1046,7 +1084,7 @@ void employer::update_job(){
     int ch,c,i,choice,r;
     string new_jb,new_comp,new_req,new_descr,new_location;
     for(i=0;i<this->posted_jobs.size();i++){
-        cout<<"\n"<<i+1<<". Job title : "<<this->posted_jobs[i].job_title;
+        cout<<"\n"<<i+1<<".Job title : "<<this->posted_jobs[i].job_title;
     }
     cout<<"\nChoose which job to update : ";
     cin>>ch;
@@ -1067,13 +1105,13 @@ void admin::view_users(){
     cout<<"\n******* Job Seekers *******\n";
     for(int i=0;i<jobseek_list.size();i++){
         cout<<"\n"<<i+1<<".\n";
-        jobseek_list[i].view_profile();
+        jobseek_list[i].view_profile_jbs();
         cout<<endl;
     }
     cout<<"\n******* Employers *******\n";
     for(int i=0;i<emp_list.size();i++){
         cout<<"\n"<<i+1<<".\n";
-        emp_list[i].view_profile();
+        emp_list[i].view_profile_emp();
         cout<<endl;
     }
 }
@@ -1126,14 +1164,14 @@ void admin::remove_job(){
         }
     }
     if(f==0){
-        cout<<"\nJob not found\n";
+        cout<<"\nJob not found\n\n\n";
         return;
     }
     return;
 }
 void admin::view_system_report(){
-    cout<<"Total no. of users : "<<jobseek_list.size() + emp_list.size()<<endl;
-    cout<<"Total jobs available : "<<job_list.size()<<endl;
+    cout<<"\n\nTotal no. of users : "<<jobseek_list.size() + emp_list.size()<<endl;
+    cout<<"\nTotal jobs available : "<<job_list.size()<<endl<<endl;
     return;
 }
 int main()
@@ -1189,21 +1227,20 @@ int main()
                     switch(m4){
                         case 1:
                             if(jbs.jbs_login()){
-                                int tar;
+                                jobseeker *jbs_ptr = new jobseeker();
                                 for(int i=0;i<jobseek_list.size();i++){
                                     if(jbs.name==jobseek_list[i].name){
-                                        tar=i;
+                                        jbs_ptr=&jobseek_list[i];
                                         break;
                                     }
                                 }
-                                jobseeker &jbs_ptr=jobseek_list[tar];
                                 menu7 : cout<<"\n1.Apply for job\n2.Update resume\n3.View applied jobs\n4.Update skills\n5.Search jobs\n6.Update experiences\n7.Track application status\n8.View profile\n9.Log out\n\n";
                                 cout<<"Enter choice : ";
                                 cin>>m7;
                                 string rsm,cvr_ltr,n_rsm;
                                 long long jb_id;
                                 int f=0,target,c;
-                                job j;
+                                // job *j;
                                 switch(m7){
                                     case 1:
                                         jobid : cout<<"Enter job id : ";
@@ -1233,51 +1270,56 @@ int main()
                                             }
                                         }
                                         else{
-                                            j=job_list[target];
+                                            job j=job_list[target];
+                                            cout<<"\nEnter resume : ";
+                                            cin>>rsm;
+                                            cout<<"Enter cover letter : ";
+                                            cin>>cvr_ltr;
+                                            jbs_ptr->apply_for_job(job_list[target],rsm,cvr_ltr);
+                                            cout<<"\n******* You successfully applied for job ******\n\n";
                                         }
-                                        cout<<"\nEnter resume : ";
-                                        cin>>rsm;
-                                        cout<<"Enter cover letter : ";
-                                        cin>>cvr_ltr;
-                                        jbs_ptr.apply_for_job(j,rsm,cvr_ltr);
+                                        
                                         getch();
                                         system("cls");
                                         break;
                                     case 2:
                                         cout<<"Enter new resume : ";
                                         cin>>n_rsm;
-                                        jbs_ptr.update_resume(n_rsm);
+                                        jbs_ptr->update_resume(n_rsm);
+                                        cout<<"\n******* Resume has been updated successfully ******\n\n";
                                         break;
                                     case 3:
-                                        jbs_ptr.view_applied_jobs();
+                                        jbs_ptr->view_applied_jobs();
                                         getch();
                                         system("cls");
                                         break;
                                     case 4:
-                                        jbs_ptr.update_skills();
+                                        jbs_ptr->update_skills();
+                                        cout<<"\n******* Skills have been updated successfully ******\n\n";
                                         getch();
                                         system("cls");
                                         break;
                                     case 5:
-                                        jbs_ptr.search_jobs();
+                                        jbs_ptr->search_jobs();
                                         getch();
                                         system("cls");
                                         break;
                                     case 6:
-                                        jbs_ptr.update_experiences();
+                                        jbs_ptr->update_experiences();
+                                        cout<<"\n******* Experiences have been updated successfully ******\n\n";
                                         getch();
                                         system("cls");
                                         break;
                                     case 7:
-                                        jbs_ptr.track_application_status();
+                                        jbs_ptr->track_application_status();
                                         break;
                                     case 8:
-                                        jbs_ptr.view_profile();
+                                        jbs_ptr->view_profile_jbs();
                                         getch();
                                         system("cls");
                                         break;
                                     case 9:
-                                        jbs_ptr.logout();
+                                        jbs_ptr->logout();
                                         goto menu2;
                                         break;
                                     default:
@@ -1289,15 +1331,14 @@ int main()
                             break;
                         case 2:
                             if(emp.emp_login()){
-                                int tar;
-                                // emp_ptr->comp_prof = new company_profile();
+                                employer *emp_ptr = new employer;
+                                emp_ptr->comp_prof = new company_profile();
                                 for(int i=0;i<emp_list.size();i++){
                                     if(emp.name==emp_list[i].name){
-                                        tar=i;
+                                        emp_ptr=&emp_list[i];
                                         break;
                                     }
                                 }
-                                employer &emp_ptr=emp_list[tar];
                                 menu8 : cout<<"\n1.View profile\n2.Post a job\n3.View posted jobs\n4.Review application\n5.Select a candidate\n6.Reject a candidate\n7.Update a job\n8.Remove a job\n9.Log out\n\n";
                                 cout<<"Enter choice : ";
                                 cin>>m8;
@@ -1308,7 +1349,7 @@ int main()
                                 job *j;
                                 switch(m8){
                                     case 1:
-                                        emp_ptr.comp_details();
+                                        emp_ptr->view_profile_emp();
                                         getch();
                                         system("cls");
                                         break;
@@ -1341,39 +1382,43 @@ int main()
                                                 cout<<"\nEnter valid option";
                                                 goto skill;
                                         }
-                                        // emp.post_job(jb_title,descr,r,s,lctn,jb_type);
-                                        emp_ptr.post_job(jb_title,descr,r,s,lctn,jb_type);
+                                        emp_ptr->post_job(jb_title,descr,r,s,lctn,jb_type);
                                         cout<<"\n\n***** Job posted successfully *****\n\n";
                                         getch();
                                         system("cls");
                                         break;
                                     case 3:
-                                        emp_ptr.view_posted_jobs();
+                                        emp_ptr->view_posted_jobs();
                                         getch();
                                         system("cls");
                                         break;
                                     case 4:
                                         cout<<"\nEnter candidate application id : ";
                                         cin>>app_id;
-                                        emp_ptr.review_applications(app_id);
+                                        emp_ptr->review_applications(app_id);
+                                        cout<<"\n******* Application reviewed successfully ******\n\n";
                                         break;
                                     case 5:
                                         cout<<"\nEnter candidate application id : ";
                                         cin>>app_id;
-                                        emp_ptr.select_candidate(app_id);
+                                        emp_ptr->select_candidate(app_id);
+                                        cout<<"\n******* Candidate selected successfully ******\n\n";
                                         break;
                                     case 6:
                                         cout<<"\nEnter candidate application id : ";
                                         cin>>app_id;
-                                        emp_ptr.reject_candidate(app_id);
+                                        emp_ptr->reject_candidate(app_id);
+                                        cout<<"\n******* Candidate rejection done ******\n\n";
                                         break;
                                     case 7:
-                                        emp_ptr.update_job();
+                                        emp_ptr->update_job();
+                                        cout<<"\n******* Job updated successfully ******\n\n";
                                         getch();
                                         system("cls");
                                         break;
                                     case 8:
-                                        emp_ptr.remove_job();
+                                        emp_ptr->remove_job();
+                                        cout<<"\n******* Job removed successfully ******\n\n";
                                         goto menu2;
                                         break;
                                     case 9:
@@ -1414,7 +1459,7 @@ int main()
                     break;
                 case 2:
                     if(adm.adm_login()){
-                        menu6 : cout<<"\1.View all users\n2.Remove an user\n3.View all jobs\n4.Remove a job\n5.Log out\n\n";
+                        menu6 : cout<<"\1.View all users\n2.Remove an user\n3.View all jobs\n4.Remove a job\n5.View system report\n6.Log out\n\n";
                         cout<<"Select : ";
                         cin>>m6;
                         switch(m6){
@@ -1435,6 +1480,9 @@ int main()
                                 adm.remove_job();
                                 break;
                             case 5:
+                                adm.view_system_report();
+                                break;
+                            case 6:
                                 goto menu5;
                                 break;
                             default:
