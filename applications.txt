@@ -1,7 +1,2 @@
-Application ID      Application Status    Applicant Name    Job Title 
-
- ,sde, 
- ,sde,newresume
-s,sde, 
-s,sde, 
-Shivang,, 
+sabu,sde,resume.txt
+karan,QA,resume.txt

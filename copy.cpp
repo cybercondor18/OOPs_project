@@ -242,7 +242,7 @@ class jobseeker:public user{
     job_preferences *job_prefr;
     jobseeker();
     void create_new_jobseeker();
-    int jbs_login(string uname, string pass);
+    int jbs_login();
     void view_profile_jbs();
     void apply_for_job(job &jb, string job_resume,string cover_ltr=NULL);
     void update_resume(string new_resume){
@@ -292,7 +292,7 @@ class employer:public user{
     vector <application> applications_received;
     employer();
     void create_new_employer();
-    int emp_login(string uname, string pass);
+    int emp_login();
     void view_profile_emp();
     void comp_details();
     void post_job(string jb_title, string description, vector<string> req, float sal, string location, string jb_type);
@@ -932,9 +932,14 @@ void jobseeker::create_new_jobseeker(){
     this->saveToCSV_jobseekers();
     return;
 }
-int jobseeker::jbs_login(string uname, string pass){
+int jobseeker::jbs_login(){
     int ch,c,size;
-    string input;
+    string uname,pass,input;
+    d : cout<<"\nEnter username : ";
+    cin.ignore();
+    getline(cin,uname);
+    cout<<"\nEnter password : ";
+    cin>>pass;
     int f1=0,f2=0;
     size=jobseek_list.size();
     for(int i=0;i<size;i++){
@@ -946,6 +951,7 @@ int jobseeker::jbs_login(string uname, string pass){
                 return 1;
             }
             else{
+                cout<<"\nPassword is wrong\n";
                 break;
             }
         }
@@ -966,7 +972,8 @@ int jobseeker::jbs_login(string uname, string pass){
         }
         switch(c){
             case 1:
-                return 2;
+                goto d;
+                break;
             case 2:
                 return 0;
             default:
@@ -1042,10 +1049,7 @@ void jobseeker::update_skills(){
         }
         switch(ch){
             case 1:
-                for(int j=0;j<this->skills.size();j++){
-                    cout<<"\n"<<j+1<<". "<<skills[j];
-                }
-                up_skl : cout<<"\nEnter the skill to update : ";
+                up_skl : cout<<"Enter the skill to update : ";
                 cin.ignore();
                 getline(cin,skl);
                 for(int i=0;i<this->skills.size();i++){
@@ -1065,7 +1069,7 @@ void jobseeker::update_skills(){
                 cout<<"Choose an option : ";
                 cin>>inp;
                 try{
-                    stringstream ss(inp);
+                    stringstream ss(input);
                     if (!(ss >> c) || !(ss.eof())) {
                         throw invalid_argument("Input must be an integer.\n");
                     }
@@ -1254,9 +1258,14 @@ void employer::create_new_employer(){
     saveToCSV_employers();
     return;
 }
-int employer::emp_login(string uname, string pass){
+int employer::emp_login(){
     int ch,c,size;
-    string input;
+    string uname,pass,input;
+    d : cout<<"\nEnter username : ";
+    cin.ignore();
+    getline(cin,uname);
+    cout<<"\nEnter password : ";
+    cin>>pass;
     int f1=0,f2=0;
     for(int i=0;i<emp_list.size();i++){
         if(uname==emp_list[i].name){
@@ -1267,6 +1276,7 @@ int employer::emp_login(string uname, string pass){
                 return 1;
             }
             else{
+                cout<<"\nPassword is wrong\n";
                 break;
             }
         }
@@ -1278,7 +1288,6 @@ int employer::emp_login(string uname, string pass){
         cout<<"\nPassword is wrong\n";
     }
     f : cout<<"\n1.Try again\t2.Go back\n\n";
-    cout<<"Enter choice : ";
     cin>>input;
     try{
         stringstream ss(input);
@@ -1287,7 +1296,8 @@ int employer::emp_login(string uname, string pass){
         }
         switch(c){
             case 1:
-                return 2;
+                goto d;
+                break;
             case 2:
                 return 0;
             default:
@@ -1426,38 +1436,18 @@ void admin::remove_user(){
     cout<<"\nEnter username : ";
     cin.ignore();
     getline(cin,uname);
-    for(int j=0;j<jobseek_list.size();j++){
-        if(jobseek_list[j].name==uname){
+    for(int i=0;i<jobseek_list.size();i++){
+        if(jobseek_list[i].name==uname){
             f=1;
-            jobseek_list.erase(jobseek_list.begin() + j);
-            ofstream file("jobseekers.csv", ios::out);
-            if (!file.is_open()) {
-                throw runtime_error("Unable to open jobseekers.csv");
-            }
-            file.seekp(0,ios::beg);
-            for(int i=0;i<jobseek_list.size();i++){
-                file << jobseek_list[i].name << "," << jobseek_list[i].email << "," << jobseek_list[i].password<<","<<jobseek_list[i].resume<<","<<jobseek_list[i].exp_list[0].job_title<<","<<jobseek_list[i].exp_list[0].company_name<<","<<jobseek_list[i].exp_list[0].duration<<","<<jobseek_list[i].edu_list[0].name_of_grade<<","<<jobseek_list[i].edu_list[0].institute<<","<<jobseek_list[i].edu_list[0].year_dur<<jobseek_list[i].skills[0]<<",";
-                file << endl;
-            }
-            file.close();
+            jobseek_list.erase(jobseek_list.begin() + i+1);
             break;
         }
     }
     if(f==0){
-        for(int j=0;j<emp_list.size();j++){
-            if(emp_list[j].name==uname){
+        for(int i=0;i<emp_list.size();i++){
+            if(emp_list[i].name==uname){
                 f=1;
-                emp_list.erase(emp_list.begin() + j);
-                ofstream file("employers.csv", ios::out);
-                if (!file.is_open()) {
-                    throw runtime_error("Unable to open employers.csv");
-                }
-                file.seekp(0,ios::beg);
-                for(int i=0;i<jobseek_list.size();i++){
-                    file << emp_list[i].name << "," << emp_list[i].email << "," <<emp_list[i].password<<","<< emp_list[i].company_name << ","<<emp_list[i].comp_location<<","<<emp_list[i].comp_description<<",";
-                    file << endl;
-                }
-                file.close();
+                emp_list.erase(emp_list.begin() + i+1);
                 break;
             }
         }
@@ -1484,26 +1474,13 @@ void admin::remove_job(){
     for(int i=0;i<job_list.size();i++){
         if(jb_id==job_list[i].job_id){
             f=1;
-            job_list.erase(job_list.begin() + i);
-            ofstream file("jobs.csv", ios::out);
-            if (!file.is_open()) {
-                throw runtime_error("Unable to open jobs.csv");
-            }
-            file.seekp(0,ios::beg);
-            for(int i=0;i<job_list.size();i++){
-                file << job_list[i].job_id << "," << job_list[i].job_title << "," << job_list[i].job_type << ","<< job_list[i].job_descr << ","<< job_list[i].salary << ","<< job_list[i].job_location << ","<< job_list[i].job_emp->company_name <<","<< job_list[i].job_emp->comp_location<<","<<job_list[i].job_emp->comp_description<<"," ;
-                file << endl;
-            }
-            file.close();
+            job_list.erase(job_list.begin() + i+1);
             break;
         }
     }
     if(f==0){
         cout<<"\nJob not found\n\n\n";
         return;
-    }
-    else{
-        cout<<"\n\n***** Job removed successfully *****\n\n";
     }
     return;
 }
@@ -1523,8 +1500,8 @@ int main()
     cout<<"\n\n****** Welcome to the online job portal ******\n\n";
     menu1 : cout<<"\n1.User\n2.Admin\n3.Exit\n";
     cout<<"\nSelect : ";
-    string inp1,inp2,inp3,inp4,inp5,inp6,inp7,inp8,uname,pass;
-    int m1,m2,m3,m4,m5,m6,m7,m8;
+    string inp1,inp2,inp3,inp4,inp5,inp6,inp7,inp8;
+    int m1,m2,m3,m4,m5,m6,m7,m8,t;
     long long app_id;
     employer emp;
     jobseeker jbs;
@@ -1596,16 +1573,13 @@ int main()
                                 }
                                 switch(m4){
                                     case 1:
-                                        d : cout<<"\nEnter username : ";
-                                        cin.ignore();
-                                        getline(cin,uname);
-                                        cout<<"\nEnter password : ";
-                                        cin>>pass;
-                                        if(jbs.jbs_login(uname,pass)==1){
+                                        if(jbs.jbs_login()){
                                             jobseeker *jbs_ptr = new jobseeker();
+                                            jobseeker jbsk;
                                             for(int i=0;i<jobseek_list.size();i++){
-                                                if(uname==jobseek_list[i].name){
+                                                if(jbs.name==jobseek_list[i].name){
                                                     jbs_ptr=&jobseek_list[i];
+                                                    t=i;
                                                     break;
                                                 }
                                             }
@@ -1712,24 +1686,18 @@ int main()
                                             }
                                             goto menu7;
                                         }
-                                        else if(jbs.jbs_login(uname,pass)==2){
-                                            goto d;
-                                        }
-                                        else{
-                                            goto menu4;
-                                        }
                                         break;
                                     case 2:
-                                        emp : cout<<"\nEnter username : ";
-                                        cin.ignore();
-                                        getline(cin,uname);
-                                        cout<<"\nEnter password : ";
-                                        cin>>pass;
-                                        if(emp.emp_login(uname,pass)==1){
+                                        if(emp.emp_login()){
                                             employer *emp_ptr = new employer;
+                                            employer e;
                                             for(int i=0;i<emp_list.size();i++){
-                                                if(uname==emp_list[i].name){
+                                                if(emp.name==emp_list[i].name){
                                                     emp_ptr=&emp_list[i];
+                                                    e=emp_list[i];
+                                                    cout<<"\n\nFound the employer\n\n";
+                                                    cout<<"\n\nViewing employer profile =>\n\n";                                                  
+                                                    emp_list[i].view_profile_emp();
                                                     break;
                                                 }
                                             }
@@ -1749,6 +1717,7 @@ int main()
                                                 switch(m8){
                                                     case 1:
                                                         emp_ptr->view_profile_emp();
+                                                        e.view_profile_emp();
                                                         getch();
                                                         system("cls");
                                                         break;
@@ -1833,12 +1802,6 @@ int main()
                                                 goto menu8;
                                             }
                                             goto menu8;
-                                        }
-                                        else if(emp.emp_login(uname,pass)==2){
-                                            goto emp;
-                                        }
-                                        else{
-                                            goto menu4;
                                         }
                                         break;
                                     case 3:
